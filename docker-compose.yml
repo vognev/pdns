@@ -1,0 +1,13 @@
+version: "2"
+services:
+  pdns:
+    image: vognev/pdns:dev
+    command: /app/bin/pdns
+    working_dir: /app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - .:/app
+    ports:
+    - "5353:53/udp"
+    build:
+      context: .

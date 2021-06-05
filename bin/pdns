@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+socket_bind($sock, '0.0.0.0', 53);
+
+while (true) {
+    $size = socket_recvfrom($sock, $data, 4096, 0, $addr, $port);
+
+    if (false === $size) {
+        throw new \RuntimeException(socket_last_error($sock));
+    }
+
+    $reader = new \PDNS\Support\BinaryReader($data);
+    $writer = new \PDNS\Support\BinaryWriter();
+
+    $message = \PDNS\DNS\Proto\Message::read($reader)->reply();
+    $message->answer(
+        new \PDNS\DNS\Proto\Record(
+            new \PDNS\DNS\Proto\QName("google", "com"),
+            \PDNS\DNS\Proto\QType::A(),
+            \PDNS\DNS\Proto\QClass::INTERNET(),
+            10, chr(127) . chr(0) . chr(0) . chr(1)
+        )
+    );
+
+    $message->write($writer);
+    $data = $writer->buffer();
+
+    socket_sendto($sock, $data, strlen($data), 0, $addr, $port);
+}
