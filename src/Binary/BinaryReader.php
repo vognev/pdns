@@ -1,6 +1,6 @@
 <?php
 
-namespace PDNS\Support;
+namespace PDNS\Binary;
 
 class BinaryReader
 {

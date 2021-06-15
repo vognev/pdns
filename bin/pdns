@@ -3,31 +3,34 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-socket_bind($sock, '0.0.0.0', 53);
+$registry = new \PDNS\DNS\Registry();
+$client = new \PDNS\Docker\EngineClient(
+    \PDNS\Docker\SocketFactory::createFromEnvironment()
+);
 
-while (true) {
-    $size = socket_recvfrom($sock, $data, 4096, 0, $addr, $port);
-
-    if (false === $size) {
-        throw new \RuntimeException(socket_last_error($sock));
+foreach($client->getContainers() as $container) {
+    $container = $client->getContainer($container['Id']);
+    if (isset($container['Id'])) {
+        $registry->appendDockerContainer(
+            $container['Id'],
+            $container['Config']['Labels'],
+            $container['NetworkSettings']['Networks']
+        );
     }
-
-    $reader = new \PDNS\Support\BinaryReader($data);
-    $writer = new \PDNS\Support\BinaryWriter();
-
-    $message = \PDNS\DNS\Proto\Message::read($reader)->reply();
-    $message->answer(
-        new \PDNS\DNS\Proto\Record(
-            new \PDNS\DNS\Proto\QName("google", "com"),
-            \PDNS\DNS\Proto\QType::A(),
-            \PDNS\DNS\Proto\QClass::INTERNET(),
-            10, chr(127) . chr(0) . chr(0) . chr(1)
-        )
-    );
-
-    $message->write($writer);
-    $data = $writer->buffer();
-
-    socket_sendto($sock, $data, strlen($data), 0, $addr, $port);
 }
+
+(new \PDNS\Docker\EventListener(
+    \PDNS\Docker\SocketFactory::createFromEnvironment()
+))->setEventCallback(function(array $event) use ($registry, $client) {
+    switch ($event['status']) {
+        case 'die': $registry->removeDockerContainer($event['id']); break;
+        case 'start':
+            $container = $client->getContainer($event['id']);
+            $registry->appendDockerContainer(
+                $container['Id'],
+                $container['Config']['Labels'],
+                $container['NetworkSettings']['Networks']
+            );
+            break;
+    }
+})->loop();

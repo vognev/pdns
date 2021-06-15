@@ -2,13 +2,12 @@
 
 namespace PDNS\DNS\Proto;
 
-use PDNS\Support\BinaryReader;
-use PDNS\Support\BinaryWriter;
+use PDNS\Binary\BinaryReader;
+use PDNS\Binary\BinaryWriter;
 
 class Message
 {
     /**
-     * Message constructor.
      * @param Header $header
      * @param Question[] $questions
      * @param Record[] $answers
@@ -26,6 +25,7 @@ class Message
     public function answer(Record $record) : Message
     {
         $this->answers[] = $record;
+
         return $this;
     }
 

@@ -2,14 +2,7 @@
 
 namespace PDNS\DNS\Proto;
 
-use PDNS\Support\Enum;
-
-/**
- * @method static QClass INTERNET()
- */
-class QClass
+enum QClass : int
 {
-    use Enum;
-
-    const INTERNET = 1;
+    case INTERNET = 1;
 }

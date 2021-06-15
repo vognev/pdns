@@ -2,28 +2,14 @@
 
 namespace PDNS\DNS\Proto;
 
-use PDNS\Support\Enum;
-
-/**
- * @method static QType A()
- * @method static QType NS()
- * @method static QType CNAME()
- * @method static QType SOA()
- * @method static QType PTR()
- * @method static QType MX()
- * @method static QType TXT()
- * @method static QType OPTION()
- */
-class QType
+enum QType : int
 {
-    use Enum;
-
-    const A = 1;
-    const NS = 2;
-    const CNAME = 5;
-    const SOA = 6;
-    const PTR = 12;
-    const MX = 15;
-    const TXT = 16;
-    const OPTION = 41;
+    case A      = 1;
+    case NS     = 2;
+    case CNAME  = 5;
+    case SOA    = 6;
+    case PTR    = 12;
+    case MX     = 15;
+    case TXT    = 16;
+    case OPTION = 41;
 }

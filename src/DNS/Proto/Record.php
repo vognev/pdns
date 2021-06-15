@@ -2,8 +2,8 @@
 
 namespace PDNS\DNS\Proto;
 
-use PDNS\Support\BinaryReader;
-use PDNS\Support\BinaryWriter;
+use PDNS\Binary\BinaryReader;
+use PDNS\Binary\BinaryWriter;
 
 class Record
 {
@@ -19,8 +19,8 @@ class Record
     {
         $qname = QName::read($reader);
 
-        $qtype = new QType($reader->read_int16());
-        $class = new QClass($reader->read_int16());
+        $qtype = QType::from($reader->read_int16());
+        $class = QClass::from($reader->read_int16());
         $ttl = $reader->read_int32();
 
         $rdata_len = $reader->read_int16();
@@ -33,8 +33,8 @@ class Record
     {
         $this->qname->write($writer);
 
-        $writer->write_int16($this->qtype->value());
-        $writer->write_int16($this->qclass->value());
+        $writer->write_int16($this->qtype->value);
+        $writer->write_int16($this->qclass->value);
         $writer->write_int32($this->ttl);
 
         $writer->write_int16(strlen($this->rdata));

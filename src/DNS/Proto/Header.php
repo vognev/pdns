@@ -2,8 +2,8 @@
 
 namespace PDNS\DNS\Proto;
 
-use PDNS\Support\BinaryReader;
-use PDNS\Support\BinaryWriter;
+use PDNS\Binary\BinaryReader;
+use PDNS\Binary\BinaryWriter;
 
 class Header
 {
